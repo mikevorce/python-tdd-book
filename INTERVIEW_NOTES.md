@@ -14,7 +14,7 @@ This project was created as a way of exploring python-driven web developmentusin
 
 ##### Functional Testing
 
-Functional tests were generated in order to test the app, from initally writing comments to form the 'user story' for the test, to actually writing tests before developing features.
+Functional tests were generated in order to test the app, from initally writing comments based on  the _user story_ from which the test function was conceived, to actually writing tests and checking for _expected failure_ before beginning to develop features or write code for the actual program being developed.
 
 
 ##### Agile Development
