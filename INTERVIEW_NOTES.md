@@ -7,7 +7,7 @@ This project was created as a way of exploring python-driven web developmentusin
 
 * __Frameworks & Libraries:__ Django, Selenium (for TDD), GeckoDriver (for functional testing of Firefox)
 
-* __Concepts:__ Test-Driven-Development (TDD), Functional Testing (FT), Agile Development, Version Control, Web Development
+* __Concepts:__ Test-Driven-Development (TDD), Functional Testing (FT), Unit Testing (UT), Agile Development, Version Control, Web Development
 
 
 #### Explanation of How Concepts Were Involved
@@ -16,6 +16,8 @@ This project was created as a way of exploring python-driven web developmentusin
 
 Functional tests were generated in order to test the app, from initally writing comments based on  the _user story_ from which the test function was conceived, to actually writing tests and checking for _expected failure_ before beginning to develop features or write code for the actual program being developed.
 
+##### Unit Testing
+_Unit tests_  were generated for each class and method to ensure the correct behavior in light of potential inputs.
 
 ##### Agile Development
 
