@@ -75,3 +75,49 @@ class NewVisitorTest(LiveServerTestCase):
         # Satisfied, she closes her browser and goes off to daydream about her 
         # next fly-fishing lure design
 
+    def test_multiple_users_can_start_lists_at_different_urls(self):
+        # Kirsten starts a new to-do list
+        self.browser.get(self.live_server_url)
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Buy peacock feathers')
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_todo_list('1: Buy peacock feathers')
+
+        # She notices that her list has a unique URL
+        kirstens_list_url = self.browser.current_url
+        self.assertRegex(kirstens_list_url, '/lists/.+')
+
+        # Now dave hears about how awesome this to-do list app is from
+        # kirsten and he wants to start a list too
+
+        ## We do our best to simulate two different users by starting a
+        ## new browser session to make sure that no information about
+        ## kirsten's list is coming through cookies, etc.
+        self.browser.quit()
+        self.browser = webdriver.Firefox()
+
+        # Dave visits the homepage. He does not see kirsten's list
+        self.browser.get(self.live_server_url)
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('Buy peacock feathers', page_text)
+        self.assertNotIn('Use peacock feathers to make a fly', page_text)
+
+        # Dave starts a new list by entering a new item.
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Buy milk')
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_todo_list('1: Buy milk')
+
+        # Dave, like kirsten, notices his list has a unique URL
+        daves_list_url = self.browser.current_url
+        self.assertRegex(daves_list_url, '/lists/.+')
+        self.assertNotEqual(daves_list_url, kirstens_list_url)
+
+        # There is still no trace of kirsten's list items in dave's list 
+        # after dave adds an item to his list
+        page_text = self.browser.get_element_by_tag_name('body')
+        self.assertNotIn('Buy Peacock feathers', page_text)
+        self.assertNotIn('Use peacock feathers to make a fly', page_text)
+        self.assertIn('Buy milk', page_text)
+
+        # Satisfied, they both go about their lives
