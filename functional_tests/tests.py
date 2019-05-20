@@ -1,9 +1,13 @@
+import time
+from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-import time
-import unittest
+from selenium.common.exceptions import WebDriverException
 
-class NewVisitorTest(unittest.TestCase):
+
+MAX_WAIT = 10  # maximum amount of time we're prepared to wait for tests
+
+class NewVisitorTest(LiveServerTestCase):
 
     def setUp(self):
         self.browser = webdriver.Firefox()
@@ -12,15 +16,23 @@ class NewVisitorTest(unittest.TestCase):
         self.browser.quit()
 
     # utility functions for tests -------------------------------------
-    def check_for_row_in_todo_list(self, row_text):
-        table = self.browser.find_element_by_id('id_list_table')
-        rows = table.find_elements_by_tag_name('tr')
-        self.assertIn(row_text, [row.text for row in rows])
+    def wait_for_row_in_todo_list(self, row_text):
+        start_time = time.time()
+        while True:
+            try:
+                table = self.browser.find_element_by_id('id_list_table')
+                rows = table.find_elements_by_tag_name('tr')
+                self.assertIn(row_text, [row.text for row in rows])
+                return
+            except (AssertionError, WebDriverException) as e:
+                if time.time() - start_time > MAX_WAIT:
+                    raise e
+                time.sleep(0.5)
 
     # test functions --------------------------------------------------
     def test_can_start_a_list_and_retrieve_it_later(self):
         # Kirsten goes to check out the homepage of the to-do app
-        self.browser.get('http://localhost:8000')
+        self.browser.get(self.live_server_url)
 
         # She notices the page title and header mention to-do lists
         self.assertIn('To-Do', self.browser.title)
@@ -41,19 +53,17 @@ class NewVisitorTest(unittest.TestCase):
         # When she hits <enter>, the page updates, and now the page lists
         # "1: Buy peacock feather" as an item in a to-do list
         inputbox.send_keys(Keys.ENTER)
-        time.sleep(1)
-        self.check_for_row_in_todo_list('1: Buy peacock feathers')        
+        self.wait_for_row_in_todo_list('1: Buy peacock feathers')        
 
         # There is still a text box inviting her to add another item. She
         # enters "Use peacock feathers to make a fly"
         inputbox = self.browser.find_element_by_id('id_new_item')
         inputbox.send_keys('Use peacock feathers to make a fly')
         inputbox.send_keys(Keys.ENTER)
-        time.sleep(1)
 
         # The page updates again, and now shows both items on her list
-        self.check_for_row_in_todo_list('1: Buy peacock feathers',)
-        self.check_for_row_in_todo_list('2: Use peacock feathers to make a fly')
+        self.wait_for_row_in_todo_list('1: Buy peacock feathers',)
+        self.wait_for_row_in_todo_list('2: Use peacock feathers to make a fly')
 
         # Kirsten wonders whether the site will remember her list. Then she sees
         # that the site has generated a unique URL for her -- there is some
@@ -64,8 +74,4 @@ class NewVisitorTest(unittest.TestCase):
 
         # Satisfied, she closes her browser and goes off to daydream about her 
         # next fly-fishing lure design
-
-
-if __name__ == '__main__':
-    unittest.main(warnings='ignore')
 
