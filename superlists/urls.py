@@ -19,5 +19,6 @@ from lists import views
 
 urlpatterns = [
     url(r'^$', views.home_view, name='home_view'),
+    url(r'^lists/create-new-list$', views.create_new_list_view, name='create_new_list_view'),
     url(r'^lists/the-only-list-in-the-world/$', views.list_view, name='list_view'),
 ]
