@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from lists.models import Item
+from lists.models import Item, List
 
 
 class HomePageTest(TestCase):
@@ -9,16 +9,24 @@ class HomePageTest(TestCase):
         response = self.client.get('/')
         self.assertTemplateUsed(response, 'home.html')
 
-class ItemModelTest(TestCase):
+class ListAndItemModelsTest(TestCase):
     
     def test_can_save_and_retrieve_items(self):
+        todo_list = List()
+        todo_list.save()
+
         first_item = Item()
         first_item.text = 'The first (ever) list item'
+        first_item.list = todo_list
         first_item.save()
 
         second_item = Item()
         second_item.text = 'Ye olde second item'
+        second_item.list = todo_list
         second_item.save()
+
+        saved_list = List.objects.first()
+        self.assertEqual(saved_list, todo_list)
 
         saved_items = Item.objects.all()
         self.assertEqual(saved_items.count(), 2)
@@ -26,7 +34,9 @@ class ItemModelTest(TestCase):
         first_saved_item = saved_items[0]
         second_saved_item = saved_items[1]
         self.assertEqual(first_saved_item.text, 'The first (ever) list item')
+        self.assertEqual(first_saved_item.list, todo_list)
         self.assertEqual(second_saved_item.text, 'Ye olde second item')
+        self.assertEqual(second_saved_item.list, todo_list)
 
 class ListViewTest(TestCase):
 
@@ -35,8 +45,9 @@ class ListViewTest(TestCase):
         self.assertTemplateUsed(response, 'list.html')
 
     def test_displays_all_list_items(self):
-        Item.objects.create(text='The first list item')
-        Item.objects.create(text='The second list item')
+        todo_list = List.objects.create()
+        Item.objects.create(text='The first list item', list=todo_list)
+        Item.objects.create(text='The second list item', list=todo_list)
 
         response = self.client.get('/lists/the-only-list-in-the-world/')
 
