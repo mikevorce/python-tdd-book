@@ -30,7 +30,7 @@ class NewVisitorTest(LiveServerTestCase):
                 time.sleep(0.5)
 
     # test functions --------------------------------------------------
-    def test_can_start_a_list_and_retrieve_it_later(self):
+    def test_can_start_a_list_for_one_user(self):
         # Kirsten goes to check out the homepage of the to-do app
         self.browser.get(self.live_server_url)
 
@@ -64,13 +64,6 @@ class NewVisitorTest(LiveServerTestCase):
         # The page updates again, and now shows both items on her list
         self.wait_for_row_in_todo_list('1: Buy peacock feathers',)
         self.wait_for_row_in_todo_list('2: Use peacock feathers to make a fly')
-
-        # Kirsten wonders whether the site will remember her list. Then she sees
-        # that the site has generated a unique URL for her -- there is some
-        # explanatory text to that effect.
-        self.fail('This test class is NOT complete. Finish it!')
-
-        # She visits that URL... her to-do list is still there!
 
         # Satisfied, she closes her browser and goes off to daydream about her 
         # next fly-fishing lure design
@@ -115,7 +108,7 @@ class NewVisitorTest(LiveServerTestCase):
 
         # There is still no trace of kirsten's list items in dave's list 
         # after dave adds an item to his list
-        page_text = self.browser.get_element_by_tag_name('body')
+        page_text = self.browser.find_element_by_tag_name('body').text
         self.assertNotIn('Buy Peacock feathers', page_text)
         self.assertNotIn('Use peacock feathers to make a fly', page_text)
         self.assertIn('Buy milk', page_text)
